@@ -5,21 +5,41 @@ on:
         branches: ["main"]
     workflow_dispatch:
 
-permissions:
-    contents: write
-
 jobs:
     build:
+        name: Build
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Pages
+              id: pages
+              uses: actions/configure-pages@v5
 
             - name: Build
+              id: build
               run: |
                   npm ci
                   npm run build
 
-            - name: Deploy
-              uses: JamesIves/github-pages-deploy-action@v4
+            - name: Upload static files as artifact
+              id: deployment
+              uses: actions/upload-pages-artifact@v3
               with:
-                  folder: dist
+                  path: dist/
+
+    deploy:
+        name: Deploy
+        needs: build
+        permissions:
+            pages: write
+            id-token: write
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        runs-on: ubuntu-latest
+        steps:
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4
