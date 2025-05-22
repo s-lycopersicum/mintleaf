@@ -21,7 +21,7 @@ jobs:
               id: build
               run: |
                   npm ci
-                  npm run build
+                  npm run build -- --public-url "${{ steps.pages.outputs.base_url }}"
 
             - name: Upload static files as artifact
               id: deployment
